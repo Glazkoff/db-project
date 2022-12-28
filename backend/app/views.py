@@ -30,6 +30,48 @@ def receipt_detalization_view(id):
     return render_template("receipt.html", receipt=receipt)
 
 
+@app.route("/receipt/update/<int:id>")
+def receipt_update_view(id):
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    req = "SELECT * FROM receipts WHERE id = (%s)"
+    cur.execute(req, (id,))
+    receipt = cur.fetchone()
+    cur.close()
+    conn.close()
+    return render_template("update_receipt.html", receipt=receipt)
+
+
+@app.put(f"{API_PREFIX}/receipt/<int:id>")
+def update_receipt(id):
+    print("!!!!")
+    conn = get_db()
+    cur = conn.cursor()
+    req = "UPDATE receipts SET title = %s, body = %s WHERE id = (%s)"
+    title = request.form.get("title", "")
+    body = request.form.get("body", "")
+    cur.execute(
+        req,
+        (
+            title,
+            body,
+            id,
+        ),
+    )
+    rows_updated = cur.rowcount
+    conn.commit()
+    cur.close()
+    conn.close()
+    if rows_updated > 0:
+        return make_response(
+            jsonify({"message": "Успешно обновлено", "success": True}), 200
+        )
+    else:
+        return make_response(
+            jsonify({"message": "Произошла ошибка", "success": False}), 400
+        )
+
+
 @app.delete(f"{API_PREFIX}/receipt/<int:id>")
 def delete_receipt(id):
     conn = get_db()

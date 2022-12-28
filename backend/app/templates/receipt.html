@@ -2,9 +2,10 @@
 none %} {{receipt.title}} {% else %} Рецепт не найден {% endif %} {% endblock %}
 {% block content %} {% if receipt and receipt is not none %}
 <h1>{{receipt.title}}</h1>
-<p>{{receipt.created.strftime('%d.%m.%Y в %H:%M')}}</p>
+<p>Создано: {{receipt.created_at.strftime('%d.%m.%Y в %H:%M')}}</p>
+<p>Обновлено: {{receipt.updated_at.strftime('%d.%m.%Y в %H:%M')}}</p>
 <p>{{receipt.body}}</p>
-
+<a href="/receipt/update/{{receipt.id}}">Обновить</a>
 <a href="/api/receipt/{{receipt.id}}" data-method="delete">Удалить</a>
 <script>
   document

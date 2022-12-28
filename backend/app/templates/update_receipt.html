@@ -1,0 +1,41 @@
+{% extends "base.html" %} {% block title %} {% if receipt and receipt is not
+none %} Редактирование - {{receipt.title}} {% else %} Рецепт не найден {% endif
+%} {% endblock %} {% block content %} {% if receipt and receipt is not none %}
+<h1>Редактирование рецепта #{{receipt.id}} ({{receipt.title}})</h1>
+<p>Создано: {{receipt.created_at.strftime('%d.%m.%Y в %H:%M')}}</p>
+<p>Обновлено: {{receipt.updated_at.strftime('%d.%m.%Y в %H:%M')}}</p>
+<form id="update-form">
+  <label for="title">Название:</label><br />
+  <input
+    type="text"
+    id="title"
+    name="title"
+    value="{{ receipt.title }}"
+  /><br />
+  <label for="body">Рецепт:</label><br />
+  <input type="text" id="body" name="body" value="{{ receipt.body }}" /><br />
+  <input type="submit" value="Отправить" />
+</form>
+<script>
+  document
+    .getElementById("update-form")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      var formData = new FormData(event.target);
+      var xhr = new XMLHttpRequest();
+      xhr.open("PUT", "/api/receipt/{{receipt.id}}");
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            window.location = "/receipt/{{receipt.id}}";
+          } else {
+            window.location = "/error";
+          }
+        }
+      };
+      xhr.send(formData);
+    });
+</script>
+{% else %}
+<b>Рецепт не найден!</b>
+{% endif %} {% endblock %}
