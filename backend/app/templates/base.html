@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html lang="ru-RU">
+  <head>
+    {% block head %}
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>
+      {% block title %}{% endblock %} - Поваренная книга датасаентиста
+    </title>
+    {% endblock %}
+  </head>
+  <body>
+    Поваренная книга
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">
+      {% block footer %}
+      <p>&copy; 2022-2023 - студент группы МИВТ-22-5 <b>Никита Глазков</b>.</p>
+      <p><a href="/">На главную</a></p>
+      {% endblock %}
+    </div>
+  </body>
+</html>

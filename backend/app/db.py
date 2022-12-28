@@ -3,7 +3,7 @@ import psycopg2
 from flask import current_app, g
 
 
-def get_db_conn():
+def get_db():
     if "db" not in g:
         g.db = psycopg2.connect(
             host="postgres",
@@ -23,7 +23,7 @@ def close_db(e=None):
 
 
 def init_db():
-    conn = get_db_conn()
+    conn = get_db()
     cur = conn.cursor()
 
     with current_app.open_resource("schema.sql") as f:

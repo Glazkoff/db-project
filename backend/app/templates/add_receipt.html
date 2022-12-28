@@ -1,0 +1,12 @@
+{% extends "base.html" %} {% block title %}Добавить рецепт{% endblock %} {%
+block content %}
+<h1>Добавление рецепта</h1>
+<a href="/">Назад</a>
+<form method="POST" action="/api/add_receipt">
+  <label for="title">Название:</label><br />
+  <input type="text" id="title" name="title" /><br />
+  <label for="body">Рецепт:</label><br />
+  <input type="text" id="body" name="body" /><br />
+  <input type="submit" value="Отправить" />
+</form>
+{% endblock %}
