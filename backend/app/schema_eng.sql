@@ -1,10 +1,10 @@
 --
--- Устанавливаем UTC+3 для БД
+-- Setting UTC + 3 for the database
 SET TIME ZONE 'Europe/Moscow';
 ALTER DATABASE misis_project
 SET TIMEZONE TO 'Europe/Moscow';
 --
--- Таблица пользователей
+-- User Table
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   name VARCHAR (255) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR (255) NOT NULL
 );
 --
--- Таблица рецептов
+-- Recipe table
 CREATE TABLE IF NOT EXISTS receipts (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
@@ -23,26 +23,26 @@ CREATE TABLE IF NOT EXISTS receipts (
   updated_at TIMESTAMP DEFAULT NOW ()
 );
 --
--- Таблица категорий
+-- Recipe category table
 CREATE TABLE IF NOT EXISTS categories (
   id SERIAL PRIMARY KEY,
   category_name VARCHAR (255) NOT NULL,
   parent_category_id INTEGER REFERENCES categories (id)
 );
 --
--- Таблица ингредиентов
+-- Ingredients table
 CREATE TABLE IF NOT EXISTS ingredients (
   id SERIAL PRIMARY KEY,
   ingredient_name VARCHAR (255) NOT NULL
 );
 --
--- Таблица единиц измерения
+-- Units table
 CREATE TABLE IF NOT EXISTS units (
   id SERIAL PRIMARY KEY,
   unit_name VARCHAR (255) NOT NULL -- ? Минимальное значение
 );
 --
--- Таблица ингредиентов в рецептах
+-- Ingredients table in recipes
 CREATE TABLE IF NOT EXISTS ingredients_in_receipts (
   id SERIAL PRIMARY KEY,
   ingredient_id INTEGER REFERENCES ingredients (id),
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS ingredients_in_receipts (
   amount INTEGER NOT NULL,
   comment VARCHAR (255)
 );
--- Добавляем проверку на то, чтобы количество ингридиента было больше 0, если она уже не существует
+-- Add a check that the quantity of the ingredient is greater than 0 if it does not already exist
 DO $$ BEGIN IF NOT EXISTS (
   SELECT 1
   FROM information_schema.table_constraints
@@ -63,27 +63,10 @@ ADD CONSTRAINT min_quantity CHECK (quantity >= 0);
 END IF;
 END $$;
 --
--- Триггер для фиксации даты и времени обновления
-CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
+-- Trigger for fixing the date and time of the update
+CREATE OR REPLACE FUNCTION set_updated_at () RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW ();
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER set_receipts_updated_at BEFORE
 UPDATE ON receipts FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
---
--- -- TODO Запрос для получения цепочки до родительской категории
--- WITH RECURSIVE category_chain (id, category_name, parent_category_id) AS (
---   SELECT id,
---     category_name,
---     parent_category_id
---   FROM categories
---   WHERE id = 2
---   UNION ALL
---   SELECT c.id,
---     c.category_name,
---     c.parent_category_id
---   FROM categories c
---     JOIN category_chain cc ON cc.parent_category_id = c.id
--- )
--- SELECT *
--- FROM category_chain;

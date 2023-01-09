@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block title %}Админпанель{% endblock %} {% block
+content %}
+<h1>Админпанель</h1>
+<div>
+  <p>
+    В среднем в одном рецепте указано ингредиентов:
+    {{dashboard_data['average_ingredients_count']}}
+  </p>
+</div>
+{% endblock %}

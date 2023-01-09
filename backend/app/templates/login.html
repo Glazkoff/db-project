@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block title %}Авторизация{% endblock %} {% block
+content %}
+<h1>Войти</h1>
+{% if error %}
+<p style="color: red">{{ error }}</p>
+{% endif %}
+<form method="post" action="/login">
+  {{ form.csrf_token }} {{ form.email.label }} {{ form.email }} {{
+  form.password.label }} {{ form.password }} {{ form.submit }}
+</form>
+{% endblock %}
