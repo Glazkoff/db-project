@@ -1,13 +1,6 @@
-import psycopg2.extras
 from flask import (
     render_template,
-    jsonify,
-    make_response,
-    abort,
-    request,
     redirect,
-    session,
-    url_for,
 )
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField

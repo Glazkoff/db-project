@@ -1,12 +1,51 @@
 {% extends "base.html" %} {% block title %}Добавить рецепт{% endblock %} {%
 block content %}
 <h1>Добавление рецепта</h1>
-<a href="/">Назад</a>
-<form method="POST" action="/api/add_receipt">
-  <label for="title">Название:</label><br />
-  <input type="text" id="title" name="title" /><br />
-  <label for="body">Рецепт:</label><br />
-  <textarea></textarea><br />
-  <input type="submit" value="Отправить" />
+<form method="POST" action="/api/add_receipt" class="form-horizontal">
+  {{ form.csrf_token }}
+  <div class="form-group">
+    {{ form.title.label(class="col-sm-2 control-label") }}
+    <div class="col-sm-10">{{ form.title(class="form-control") }}</div>
+  </div>
+  <div class="form-group">
+    {{ form.body.label(class="col-sm-2 control-label") }}
+    <div class="col-sm-10">{{ form.body(class="form-control") }}</div>
+  </div>
+  <div class="form-group">
+    {{ form.category.label(class="col-sm-2 control-label") }}
+    <div class="col-sm-10">{{ form.category(class="form-control") }}</div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label" for="author">Автор</label>
+    <div class="col-sm-10">
+      <b>{{current_user.name}} [{{current_user.email}}]</b>
+    </div>
+  </div>
+  {% for ingredient_form in form.ingredients %}
+  <div class="form-group">
+    {{ ingredient_form.name.label(class="col-sm-2 control-label") }}
+    <div class="col-sm-10">
+      {{ ingredient_form.name(class="form-control") }}
+    </div>
+  </div>
+  <div class="form-group">
+    {{ ingredient_form.unit.label(class="col-sm-2 control-label") }}
+    <div class="col-sm-10">
+      {{ ingredient_form.unit(class="form-control") }}
+    </div>
+  </div>
+  <div class="form-group">
+    {{ ingredient_form.amount.label(class="col-sm-2 control-label") }}
+    <div class="col-sm-10">
+      {{ ingredient_form.amount(class="form-control") }}
+    </div>
+  </div>
+  {% endfor %}
+  <div class="form-group mt-2">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-primary">Создать рецепт</button>
+    </div>
+  </div>
 </form>
+
 {% endblock %}

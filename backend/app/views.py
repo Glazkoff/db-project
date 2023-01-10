@@ -1,6 +1,17 @@
 import psycopg2.extras
 from flask import render_template, jsonify, make_response, abort, request, redirect
 from flask_login import login_required, current_user
+from flask_wtf import FlaskForm
+from wtforms import (
+    StringField,
+    SelectField,
+    TextAreaField,
+    IntegerField,
+    FieldList,
+    FormField,
+    ValidationError,
+)
+from wtforms.validators import DataRequired
 from app import app
 from .db import get_db, close_db
 
@@ -22,7 +33,6 @@ def home_template():
         "home.html",
         receipts=receipts,
         aggregation=receipts_aggregation,
-        current_user=current_user,
     )
 
 
@@ -30,11 +40,32 @@ def home_template():
 def receipt_detalization_view(id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    req = "SELECT * FROM receipts WHERE id = (%s)"
-    cur.execute(req, (id,))
+    receipt_req = "SELECT * FROM receipts WHERE id = (%s)"
+    cur.execute(receipt_req, (id,))
     receipt = cur.fetchone()
+    categories_hierarchy_req = """
+        WITH RECURSIVE category_chain (id, category_name, parent_category_id) AS (
+        SELECT id,
+            category_name,
+            parent_category_id
+        FROM categories
+        WHERE id = (%s)
+        UNION ALL
+        SELECT c.id,
+            c.category_name,
+            c.parent_category_id
+        FROM categories c
+            JOIN category_chain cc ON cc.parent_category_id = c.id
+        )
+        SELECT *
+        FROM category_chain;
+    """
+    cur.execute(categories_hierarchy_req, (id,))
+    categories_hierarchy = cur.fetchall()
     close_db()
-    return render_template("receipt.html", receipt=receipt)
+    return render_template(
+        "receipt.html", receipt=receipt, categories=categories_hierarchy
+    )
 
 
 @app.route("/receipt/update/<int:id>")
@@ -101,7 +132,52 @@ def delete_receipt(id):
 @app.route("/add_receipt")
 @login_required
 def add_receipt_view():
-    return render_template("add_receipt.html")
+    def get_categories():
+        categories = []
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute("SELECT id, category_name FROM categories")
+            rows = cur.fetchall()
+            for row in rows:
+                categories.append((row[0], row[1]))
+        except Exception as e:
+            raise ValidationError(str(e))
+        finally:
+            close_db()
+        return categories
+
+    def validate_ingredient_name(form, field):
+        conn = None
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute("SELECT COUNT(*) FROM ingredients WHERE name=%s", (field.data,))
+            count = cur.fetchone()[0]
+            if count > 0:
+                raise ValidationError("Ингредиент уже существует")
+        except Exception as e:
+            raise ValidationError(str(e))
+        finally:
+            close_db()
+
+    class IngredientForm(FlaskForm):
+        name = StringField(
+            "Name",
+            validators=[DataRequired(), validate_ingredient_name],
+        )
+        unit = SelectField("Unit", coerce=int)
+        amount = IntegerField("Amount", validators=[DataRequired()])
+        comment = StringField("Comment")
+
+    class ReceiptForm(FlaskForm):
+        title = StringField("Название", validators=[DataRequired()])
+        body = TextAreaField("Текст рецепта", validators=[DataRequired()])
+        category = SelectField("Категории", coerce=int, choices=get_categories())
+        ingredients = FieldList(FormField(IngredientForm))
+
+    form = ReceiptForm()
+    return render_template("add_receipt.html", form=form)
 
 
 @app.post(f"{API_PREFIX}/add_receipt")
@@ -111,9 +187,11 @@ def add_receipt():
     cur = conn.cursor()
     title = request.form.get("title", "")
     body = request.form.get("body", "")
+    category_id = request.form.get("category", "")
+    user_id = current_user.id
     cur.execute(
-        "INSERT INTO receipts (title, body) VALUES (%s, %s) RETURNING id",
-        (title, body),
+        "INSERT INTO receipts (title, body, author_id, category_id) VALUES (%s, %s, %s, %s) RETURNING id",
+        (title, body, user_id, category_id),
     )
     rows_affected = cur.rowcount
     conn.commit()
@@ -122,37 +200,3 @@ def add_receipt():
         return redirect("/")
     else:
         abort(500)
-
-
-@app.route("/error")
-def error_view():
-    return render_template("error.html")
-
-
-@app.route("/success")
-def success_view():
-    return render_template("success.html")
-
-
-@app.errorhandler(404)
-def not_found(error):
-    return render_template("404.html"), 404
-
-
-@app.route("/admin")
-@login_required
-def admin_view():
-    dashboard_data = {}
-    average_ingredients_count_req = """
-        SELECT AVG(num_ingredients) AS avg_ingredients 
-        FROM (SELECT COUNT(ingredients_in_receipts.id) AS num_ingredients 
-        FROM ingredients_in_receipts 
-        GROUP BY ingredients_in_receipts.receipt_id) 
-        AS ingredients_count;
-    """
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(average_ingredients_count_req)
-    dashboard_data["average_ingredients_count"] = cur.fetchone()
-    close_db()
-    return render_template("admin.html", dashboard_data=dashboard_data)

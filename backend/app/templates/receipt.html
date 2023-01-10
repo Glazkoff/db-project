@@ -2,6 +2,7 @@
 none %} {{receipt.title}} {% else %} Рецепт не найден {% endif %} {% endblock %}
 {% block content %} {% if receipt and receipt is not none %}
 <h1>{{receipt.title}}</h1>
+{{categories_hierarchy}}
 <p>Создано: {{receipt.created_at.strftime('%d.%m.%Y в %H:%M')}}</p>
 <p>Обновлено: {{receipt.updated_at.strftime('%d.%m.%Y в %H:%M')}}</p>
 <p>{{receipt.body}}</p>

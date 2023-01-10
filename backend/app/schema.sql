@@ -7,9 +7,16 @@ SET TIMEZONE TO 'Europe/Moscow';
 -- Таблица пользователей
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
-  name VARCHAR (255) NOT NULL,
-  email VARCHAR (255) NOT NULL,
-  password VARCHAR (255) NOT NULL
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL
+);
+--
+-- Таблица категорий
+CREATE TABLE IF NOT EXISTS categories (
+  id SERIAL PRIMARY KEY,
+  category_name VARCHAR(255) NOT NULL,
+  parent_category_id INTEGER REFERENCES categories(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 --
 -- Таблица рецептов
@@ -17,39 +24,33 @@ CREATE TABLE IF NOT EXISTS receipts (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   body TEXT NOT NULL,
-  category_id INTEGER REFERENCES categories (category_id),
-  author_id INTEGER REFERENCES users (author_id),
+  category_id INTEGER REFERENCES categories(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  author_id INTEGER REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT NOW ()
-);
---
--- Таблица категорий
-CREATE TABLE IF NOT EXISTS categories (
-  id SERIAL PRIMARY KEY,
-  category_name VARCHAR (255) NOT NULL,
-  parent_category_id INTEGER REFERENCES categories (id)
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 --
 -- Таблица ингредиентов
 CREATE TABLE IF NOT EXISTS ingredients (
   id SERIAL PRIMARY KEY,
-  ingredient_name VARCHAR (255) NOT NULL
+  ingredient_name VARCHAR(255) NOT NULL
 );
 --
 -- Таблица единиц измерения
 CREATE TABLE IF NOT EXISTS units (
   id SERIAL PRIMARY KEY,
-  unit_name VARCHAR (255) NOT NULL -- ? Минимальное значение
+  short_name VARCHAR(255) NOT NULL,
+  full_name VARCHAR(255) NOT NULL
 );
 --
 -- Таблица ингредиентов в рецептах
 CREATE TABLE IF NOT EXISTS ingredients_in_receipts (
   id SERIAL PRIMARY KEY,
-  ingredient_id INTEGER REFERENCES ingredients (id),
-  receipt_id INTEGER REFERENCES receipts (id),
-  unit_id INTEGER REFERENCES units (id),
+  ingredient_id INTEGER REFERENCES ingredients(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  receipt_id INTEGER REFERENCES receipts(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  unit_id INTEGER REFERENCES units(id) ON DELETE RESTRICT ON UPDATE CASCADE,
   amount INTEGER NOT NULL,
-  comment VARCHAR (255)
+  comment VARCHAR(255)
 );
 -- Добавляем проверку на то, чтобы количество ингридиента было больше 0, если она уже не существует
 DO $$ BEGIN IF NOT EXISTS (
@@ -58,8 +59,8 @@ DO $$ BEGIN IF NOT EXISTS (
   WHERE constraint_name = 'min_amount'
     AND table_name = 'ingredients_in_receipts'
 ) THEN
-ALTER TABLE orders
-ADD CONSTRAINT min_quantity CHECK (quantity >= 0);
+ALTER TABLE ingredients_in_receipts
+ADD CONSTRAINT min_amount CHECK (amount >= 0);
 END IF;
 END $$;
 --
