@@ -1,5 +1,23 @@
 {% extends "base.html" %} {% block title %}Админпанель{% endblock %} {% block
 content %}
+<script>
+  // Удаление
+  function deleteEntity(id, entity) {
+    event.preventDefault();
+    var xhr = new XMLHttpRequest();
+    xhr.open("DELETE", `/api/${entity}/${id}`);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          location.reload();
+        } else {
+          window.location = "/error";
+        }
+      }
+    };
+    xhr.send();
+  }
+</script>
 <h1>Админпанель</h1>
 <div>
   <p>
@@ -113,7 +131,11 @@ content %}
               <button type="button" class="btn btn-secondary btn-sm">
                 Изменить
               </button>
-              <button type="button" class="btn btn-danger btn-sm">
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                onclick="deleteEntity({{category.id}}, 'categories')"
+              >
                 Удалить
               </button>
             </td>
@@ -184,7 +206,7 @@ content %}
         <thead>
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Единица измерения</th>
+            <th scope="col">Ингредиент</th>
             <th scope="col">Действия</th>
           </tr>
         </thead>
@@ -194,10 +216,81 @@ content %}
             <th scope="row">{{ingredient.id}}</th>
             <td>{{ingredient.ingredient_name}}</td>
             <td>
-              <button type="button" class="btn btn-secondary btn-sm">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#ingredientChangeModal"
+              >
                 Изменить
               </button>
-              <button type="button" class="btn btn-danger btn-sm">
+              <div class="modal fade" id="ingredientChangeModal" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="ingredientModalLabel">
+                        Обновление ингредиента #{{ingredient.id}}
+                      </h1>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <form
+                        method="POST"
+                        class="form-horizontal"
+                        id="ingredient-update-form-{{ingredient.id}}"
+                      >
+                        {{ ingredient_creation_form.csrf_token }}
+                        <div class="form-group">
+                          {{
+                          ingredient_creation_form.ingredient_name.label(class="col-sm-2
+                          control-label") }}
+                          <div class="col-sm-10">
+                            {{
+                            ingredient_creation_form.ingredient_name(class="form-control",
+                            value=ingredient.ingredient_name) }}
+                          </div>
+                        </div>
+                        <div class="form-group mt-2">
+                          <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-primary">
+                              Обновить ингредиент
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <script>
+                  document
+                    .getElementById("ingredient-update-form-{{ingredient.id}}")
+                    .addEventListener("submit", function (event) {
+                      event.preventDefault();
+                      var formData = new FormData(event.target);
+                      var xhr = new XMLHttpRequest();
+                      xhr.open("PUT", "/api/ingredients/{{ingredient.id}}");
+                      xhr.onreadystatechange = function () {
+                        if (xhr.readyState === XMLHttpRequest.DONE) {
+                          if (xhr.status === 200) {
+                            window.location = "/admin?tab=ingredients";
+                          } else {
+                            window.location = "/error";
+                          }
+                        }
+                      };
+                      xhr.send(formData);
+                    });
+                </script>
+              </div>
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                onclick="deleteEntity({{ingredient.id}}, 'ingredients')"
+              >
                 Удалить
               </button>
             </td>
@@ -260,10 +353,19 @@ content %}
             <td>{{unit.full_name}}</td>
             <td>{{unit.short_name}}</td>
             <td>
-              <button type="button" class="btn btn-secondary btn-sm">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#unitModal"
+              >
                 Изменить
               </button>
-              <button type="button" class="btn btn-danger btn-sm">
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                onclick="deleteEntity({{unit.id}}, 'units')"
+              >
                 Удалить
               </button>
             </td>
@@ -274,4 +376,38 @@ content %}
     </div>
   </div>
 </div>
+<script>
+  // Связь табов и query-параметра
+  function activateTabFromQuery() {
+    const params = new URLSearchParams(location.search);
+    const tabId = params.get("tab");
+    const links = document.querySelectorAll(".nav button");
+    const contents = document.querySelectorAll(".tab-content div");
+    if (tabId) {
+      const tabLink = document.getElementById(`v-pills-${tabId}-tab`);
+      const tabContent = document.getElementById(`v-pills-${tabId}`);
+      if (tabLink && tabContent) {
+        links.forEach(link => {
+          link.classList.remove("active");
+        });
+        contents.forEach(content => {
+          content.classList.remove("active");
+        });
+        tabLink.classList.add("active");
+        tabContent.classList.add("active");
+        tabContent.classList.add("show");
+      }
+    }
+  }
+  document.addEventListener("DOMContentLoaded", activateTabFromQuery);
+  document.querySelectorAll(".nav button").forEach(link => {
+    link.addEventListener("click", function () {
+      history.replaceState(
+        {},
+        document.title,
+        "/admin?" + "tab=" + this.id.split("-")[2]
+      );
+    });
+  });
+</script>
 {% endblock %}

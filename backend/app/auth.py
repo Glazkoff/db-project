@@ -1,7 +1,4 @@
-from flask import (
-    render_template,
-    redirect,
-)
+from flask import render_template, redirect
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length

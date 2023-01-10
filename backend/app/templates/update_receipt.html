@@ -23,11 +23,11 @@ none %} Редактирование - {{receipt.title}} {% else %} Рецепт
       event.preventDefault();
       var formData = new FormData(event.target);
       var xhr = new XMLHttpRequest();
-      xhr.open("PUT", "/api/receipt/{{receipt.id}}");
+      xhr.open("PUT", "/api/receipts/{{receipt.id}}");
       xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
           if (xhr.status === 200) {
-            window.location = "/receipt/{{receipt.id}}";
+            window.location = "/receipts/{{receipt.id}}";
           } else {
             window.location = "/error";
           }

@@ -1,5 +1,5 @@
 import psycopg2.extras
-from flask import render_template, request, abort, redirect
+from flask import render_template, request, abort, redirect, Blueprint
 from flask_login import login_required
 from flask_wtf import FlaskForm
 from wtforms import (
@@ -12,27 +12,23 @@ from wtforms import (
     ValidationError,
 )
 from wtforms.validators import DataRequired
-from app import app
-from .db import get_db, close_db
-from .views import API_PREFIX
+from ..db import get_db, close_db
+from .general import API_PREFIX
+
+service_blueprint = Blueprint("service", __name__)
 
 
-@app.route("/error")
+@service_blueprint.route("/error")
 def error_view():
     return render_template("error.html")
 
 
-@app.route("/success")
+@service_blueprint.route("/success")
 def success_view():
     return render_template("success.html")
 
 
-@app.errorhandler(404)
-def not_found(error):
-    return render_template("404.html"), 404
-
-
-@app.route("/admin")
+@service_blueprint.route("/admin")
 @login_required
 def admin_view():
     class IngredientCreationForm(FlaskForm):
@@ -70,22 +66,3 @@ def admin_view():
         content_data=content_data,
         ingredient_creation_form=IngredientCreationForm(),
     )
-
-
-@app.post(f"{API_PREFIX}/admin/ingredients")
-@login_required
-def add_ingredient():
-    conn = get_db()
-    cur = conn.cursor()
-    ingredient_name = request.form.get("ingredient_name", "")
-    cur.execute(
-        "INSERT INTO ingredients (ingredient_name) VALUES (%s) RETURNING id",
-        (ingredient_name,),
-    )
-    rows_affected = cur.rowcount
-    conn.commit()
-    close_db()
-    if rows_affected > 0:
-        return redirect("/admin")
-    else:
-        abort(500)

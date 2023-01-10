@@ -5,7 +5,7 @@ content %}
 <h2>Последние 10 рецептов</h2>
 <ul>
   {% for receipt in receipts %}
-  <li><a href="/receipt/{{receipt[0]}}">{{receipt[1]}}</a> {{ receipt }}</li>
+  <li><a href="/receipts/{{receipt[0]}}">{{receipt[1]}}</a> {{ receipt }}</li>
   {% endfor %}
 </ul>
 {% endblock %}
