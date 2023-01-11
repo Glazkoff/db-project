@@ -30,7 +30,7 @@ API_PREFIX = "/api"
 @general_blueprint.route("/")
 def home_template():
     conn = get_db()
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     last_receipts_req = "SELECT * FROM receipts ORDER BY id DESC LIMIT 10"
     cur.execute(last_receipts_req)
     receipts = cur.fetchall()

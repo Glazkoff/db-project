@@ -2,7 +2,16 @@
 none %} {{receipt.title}} {% else %} Рецепт не найден {% endif %} {% endblock %}
 {% block content %} {% if receipt and receipt is not none %}
 <h1>{{receipt.title}}</h1>
-{{categories_hierarchy}}
+<div>
+  <ol class="breadcrumb">
+    {% for category in categories %}
+    <li class="breadcrumb-item">
+      <a href="/categories/{{category.id}}">{{category.category_name}}</a>
+    </li>
+    {% endfor %}
+    <li class="breadcrumb-item active">{{receipt.title}}</li>
+  </ol>
+</div>
 <p>Создано: {{receipt.created_at.strftime('%d.%m.%Y в %H:%M')}}</p>
 <p>Обновлено: {{receipt.updated_at.strftime('%d.%m.%Y в %H:%M')}}</p>
 <p>{{receipt.body}}</p>

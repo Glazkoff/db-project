@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% macro display_children(category_tree) %}
+<ul class="list-group">
+  {% for id, category in category_tree.items() %}
+  <li class="list-group-item">
+    <a href="/categories/{{id}}">{{ category.name }}</a> {% if category.children
+    %} {{ display_children(category.children) }} {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endmacro %} {% block title %} Категории {% endblock %} {% block content %}
+<h1>Категории</h1>
+{{ display_children(category_tree) }} {% endblock %}

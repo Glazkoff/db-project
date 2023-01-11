@@ -1,0 +1,22 @@
+{% macro receipt_block(receipt, small=False) %}
+<div class="card mb-2">
+  <div class="card-header">
+    <a href="/receipts/{{receipt.id}}"><b>{{ receipt.title }}</b></a>
+  </div>
+  <div class="card-body">
+    <p class="card-text">
+      Категория:
+      <a href="{{ receipt.category_id }}"><b>{{ receipt.category_name }}</b></a>
+    </p>
+    <p class="card-text">Автор: <b>{{ receipt.author_name }}</b></p>
+    <p class="card-text">
+      Создан: <b>{{ receipt.created_at.strftime('%d.%m.%Y в %H:%M') }}</b>
+    </p>
+    {% if not small%}
+    <p class="card-text">
+      Обновлено: <b>{{ receipt.updated_at.strftime('%d.%m.%Y в %H:%M') }}</b>
+    </p>
+    {% endif %}
+  </div>
+</div>
+{% endmacro %}

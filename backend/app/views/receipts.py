@@ -109,21 +109,23 @@ def receipt_detalization_view(id):
     cur.execute(receipt_req, (id,))
     receipt = cur.fetchone()
     categories_hierarchy_req = """
-        WITH RECURSIVE category_chain (id, category_name, parent_category_id) AS (
-        SELECT id,
-            category_name,
-            parent_category_id
-        FROM categories
-        WHERE id = (%s)
-        UNION ALL
-        SELECT c.id,
-            c.category_name,
-            c.parent_category_id
-        FROM categories c
-            JOIN category_chain cc ON cc.parent_category_id = c.id
-        )
+        WITH RECURSIVE category_chain (id, category_name, parent_category_id, level) AS (
+            SELECT id,
+                category_name,
+                parent_category_id,
+                1 as level
+            FROM categories
+            WHERE id = (SELECT category_id FROM receipts WHERE id = %s)
+            UNION ALL
+            SELECT c.id,
+                c.category_name,
+                c.parent_category_id,
+                cc.level + 1 as level
+            FROM categories c
+                JOIN category_chain cc ON cc.parent_category_id = c.id
+            )
         SELECT *
-        FROM category_chain;
+        FROM category_chain ORDER BY level DESC;
     """
     cur.execute(categories_hierarchy_req, (id,))
     categories_hierarchy = cur.fetchall()
