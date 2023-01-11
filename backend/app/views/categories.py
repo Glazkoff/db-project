@@ -23,40 +23,47 @@ from wtforms.validators import DataRequired
 from ..db import get_db, close_db
 from .general import API_PREFIX
 
-ingredients_blueprint = Blueprint("ingredients", __name__)
+categories_blueprint = Blueprint("categories", __name__)
 
 # CREATE API
-@ingredients_blueprint.post(f"{API_PREFIX}/ingredients")
+@categories_blueprint.post(f"{API_PREFIX}/categories")
 @login_required
-def add_ingredient():
+def add_category():
     conn = get_db()
     cur = conn.cursor()
-    ingredient_name = request.form.get("ingredient_name", "")
+    category_name = request.form.get("category_name", "")
+    parent_category_id = request.form.get("parent_category_id", 0)
+    if int(parent_category_id) == 0:
+        parent_category_id = None
     cur.execute(
-        "INSERT INTO ingredients (ingredient_name) VALUES (%s) RETURNING id",
-        (ingredient_name,),
+        "INSERT INTO categories (category_name, parent_category_id) VALUES (%s, %s) RETURNING id",
+        (category_name, parent_category_id),
     )
     rows_affected = cur.rowcount
     conn.commit()
     close_db()
     if rows_affected > 0:
-        return redirect("/admin?tab=ingredients")
+        return redirect("/admin?tab=categories")
     else:
         abort(500)
 
 
 # UPDATE API
-@ingredients_blueprint.put(f"{API_PREFIX}/ingredients/<int:id>")
+@categories_blueprint.put(f"{API_PREFIX}/categories/<int:id>")
 @login_required
-def update_ingredient(id):
+def update_category(id):
     conn = get_db()
     cur = conn.cursor()
-    req = "UPDATE ingredients SET ingredient_name = %s WHERE id = (%s)"
-    ingredient_name = request.form.get("ingredient_name", "")
+    req = "UPDATE categories SET category_name = %s, parent_category_id = %s WHERE id = (%s)"
+    category_name = request.form.get("category_name", "")
+    parent_category_id = request.form.get("parent_category_id", 0)
+    if int(parent_category_id) == 0:
+        parent_category_id = None
     cur.execute(
         req,
         (
-            ingredient_name,
+            category_name,
+            parent_category_id,
             id,
         ),
     )
@@ -74,12 +81,12 @@ def update_ingredient(id):
 
 
 # DELETE API
-@ingredients_blueprint.delete(f"{API_PREFIX}/ingredients/<int:id>")
+@categories_blueprint.delete(f"{API_PREFIX}/categories/<int:id>")
 @login_required
-def delete_ingredient(id):
+def delete_category(id):
     conn = get_db()
     cur = conn.cursor()
-    req = "DELETE FROM ingredients WHERE id = (%s)"
+    req = "DELETE FROM categories WHERE id = (%s)"
     cur.execute(req, (id,))
     rows_deleted = cur.rowcount
     conn.commit()

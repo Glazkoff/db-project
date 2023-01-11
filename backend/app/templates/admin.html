@@ -77,15 +77,15 @@ content %}
         type="button"
         class="btn btn-success"
         data-bs-toggle="modal"
-        data-bs-target="#exampleModal"
+        data-bs-target="#categoryModal"
       >
         Добавить категорию
       </button>
-      <div class="modal fade" id="exampleModal" tabindex="-1">
+      <div class="modal fade" id="categoryModal" tabindex="-1">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h1 class="modal-title fs-5" id="exampleModalLabel">
+              <h1 class="modal-title fs-5" id="categoryModalLabel">
                 Создание категории
               </h1>
               <button
@@ -94,16 +94,40 @@ content %}
                 data-bs-dismiss="modal"
               ></button>
             </div>
-            <div class="modal-body">...</div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
+            <div class="modal-body">
+              <form
+                method="POST"
+                action="/api/categories"
+                class="form-horizontal"
               >
-                Отмена
-              </button>
-              <button type="button" class="btn btn-success">Сохранить</button>
+                {{ category_creation_form.csrf_token }}
+                <div class="form-group">
+                  {{ category_creation_form.category_name.label(class="col-sm-2
+                  control-label w-100") }}
+                  <div class="col-sm-10">
+                    {{
+                    category_creation_form.category_name(class="form-control")
+                    }}
+                  </div>
+                </div>
+                <div class="form-group">
+                  {{
+                  category_creation_form.parent_category_id.label(class="col-sm-2
+                  control-label w-100") }}
+                  <div class="col-sm-10">
+                    {{
+                    category_creation_form.parent_category_id(class="form-control")
+                    }}
+                  </div>
+                </div>
+                <div class="form-group mt-2">
+                  <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary">
+                      Создать категорию
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -128,9 +152,98 @@ content %}
             <td>-</td>
             {% endif %}
             <td>
-              <button type="button" class="btn btn-secondary btn-sm">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#categoryUpdateModal{{category.id}}"
+              >
                 Изменить
               </button>
+              <div
+                class="modal fade"
+                id="categoryUpdateModal{{category.id}}"
+                tabindex="-1"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1
+                        class="modal-title fs-5"
+                        id="categoryUpdateModal{{category.id}}Label"
+                      >
+                        Обновление категории #{{category.id}}
+                      </h1>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <form
+                        method="POST"
+                        action="/api/categories"
+                        class="form-horizontal"
+                        id="category-update-form-{{category.id}}"
+                      >
+                        {{ category_creation_form.csrf_token }}
+                        <div class="form-group">
+                          {{
+                          category_creation_form.category_name.label(class="col-sm-2
+                          control-label w-100") }}
+                          <div class="col-sm-10">
+                            {{
+                            category_creation_form.category_name(class="form-control",
+                            value=category.category_name) }}
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          {{
+                          category_creation_form.parent_category_id.label(class="col-sm-2
+                          control-label w-100") }} {% if
+                          category.parent_category_id != None %}
+                          <div class="col-sm-10">
+                            {{
+                            category_creation_form.parent_category_id(class="form-control",
+                            value=category.parent_category_id) }}
+                          </div>
+                          {% else %} {{
+                          category_creation_form.parent_category_id(class="form-control")
+                          }} {% endif %}
+                        </div>
+                        <div class="form-group mt-2">
+                          <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-primary">
+                              Обновить категорию
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <script>
+                  document
+                    .getElementById("category-update-form-{{category.id}}")
+                    .addEventListener("submit", function (event) {
+                      event.preventDefault();
+                      var formData = new FormData(event.target);
+                      var xhr = new XMLHttpRequest();
+                      xhr.open("PUT", "/api/categories/{{category.id}}");
+                      xhr.onreadystatechange = function () {
+                        if (xhr.readyState === XMLHttpRequest.DONE) {
+                          if (xhr.status === 200) {
+                            window.location = "/admin?tab=categorys";
+                          } else {
+                            window.location = "/error";
+                          }
+                        }
+                      };
+                      xhr.send(formData);
+                    });
+                </script>
+              </div>
               <button
                 type="button"
                 class="btn btn-danger btn-sm"
@@ -176,7 +289,7 @@ content %}
             <div class="modal-body">
               <form
                 method="POST"
-                action="/api/admin/ingredients"
+                action="/api/ingredients"
                 class="form-horizontal"
               >
                 {{ ingredient_creation_form.csrf_token }}
@@ -220,11 +333,15 @@ content %}
                 type="button"
                 class="btn btn-secondary btn-sm"
                 data-bs-toggle="modal"
-                data-bs-target="#ingredientChangeModal"
+                data-bs-target="#ingredientChangeModal{{ingredient.id}}"
               >
                 Изменить
               </button>
-              <div class="modal fade" id="ingredientChangeModal" tabindex="-1">
+              <div
+                class="modal fade"
+                id="ingredientChangeModal{{ingredient.id}}"
+                tabindex="-1"
+              >
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
@@ -313,7 +430,7 @@ content %}
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h1 class="modal-title fs-5" id="unitModalLabel">
+              <h1 class="modal-title fs-5" id="ingredientModalLabel">
                 Создание единицы измерения
               </h1>
               <button
@@ -323,16 +440,31 @@ content %}
                 aria-label="Close"
               ></button>
             </div>
-            <div class="modal-body">...</div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Отмена
-              </button>
-              <button type="button" class="btn btn-success">Сохранить</button>
+            <div class="modal-body">
+              <form method="POST" action="/api/units" class="form-horizontal">
+                {{ unit_creation_form.csrf_token }}
+                <div class="form-group">
+                  {{ unit_creation_form.short_name.label(class="col-sm-2
+                  control-label w-100") }}
+                  <div class="col-sm-10">
+                    {{ unit_creation_form.short_name(class="form-control") }}
+                  </div>
+                </div>
+                <div class="form-group">
+                  {{ unit_creation_form.full_name.label(class="col-sm-2
+                  control-label w-100") }}
+                  <div class="col-sm-10">
+                    {{ unit_creation_form.full_name(class="form-control") }}
+                  </div>
+                </div>
+                <div class="form-group mt-2">
+                  <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary">
+                      Создать единицу измерения
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -357,10 +489,86 @@ content %}
                 type="button"
                 class="btn btn-secondary btn-sm"
                 data-bs-toggle="modal"
-                data-bs-target="#unitModal"
+                data-bs-target="#unitChangeModal{{unit.id}}"
               >
                 Изменить
               </button>
+              <div
+                class="modal fade"
+                id="unitChangeModal{{unit.id}}"
+                tabindex="-1"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="ingredientModalLabel">
+                        Обновление единицы измерения #{{unit.id}}
+                      </h1>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <form
+                        method="POST"
+                        action="/api/units"
+                        class="form-horizontal"
+                        id="unit-update-form-{{unit.id}}"
+                      >
+                        {{ unit_creation_form.csrf_token }}
+                        <div class="form-group">
+                          {{ unit_creation_form.short_name.label(class="col-sm-2
+                          control-label w-100") }}
+                          <div class="col-sm-10">
+                            {{
+                            unit_creation_form.short_name(class="form-control",
+                            value=unit.short_name) }}
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          {{ unit_creation_form.full_name.label(class="col-sm-2
+                          control-label w-100") }}
+                          <div class="col-sm-10">
+                            {{
+                            unit_creation_form.full_name(class="form-control",
+                            value=unit.full_name) }}
+                          </div>
+                        </div>
+                        <div class="form-group mt-2">
+                          <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-primary">
+                              Обновить единицу измерения
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <script>
+                  document
+                    .getElementById("unit-update-form-{{unit.id}}")
+                    .addEventListener("submit", function (event) {
+                      event.preventDefault();
+                      var formData = new FormData(event.target);
+                      var xhr = new XMLHttpRequest();
+                      xhr.open("PUT", "/api/units/{{unit.id}}");
+                      xhr.onreadystatechange = function () {
+                        if (xhr.readyState === XMLHttpRequest.DONE) {
+                          if (xhr.status === 200) {
+                            window.location = "/admin?tab=units";
+                          } else {
+                            window.location = "/error";
+                          }
+                        }
+                      };
+                      xhr.send(formData);
+                    });
+                </script>
+              </div>
               <button
                 type="button"
                 class="btn btn-danger btn-sm"

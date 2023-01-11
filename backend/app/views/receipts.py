@@ -85,7 +85,7 @@ def add_receipt():
     cur = conn.cursor()
     title = request.form.get("title", "")
     body = request.form.get("body", "")
-    category_id = request.form.get("category", "")
+    category_id = request.form.get("category", None)
     user_id = current_user.id
     cur.execute(
         "INSERT INTO receipts (title, body, author_id, category_id) VALUES (%s, %s, %s, %s) RETURNING id",

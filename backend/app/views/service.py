@@ -31,9 +31,44 @@ def success_view():
 @service_blueprint.route("/admin")
 @login_required
 def admin_view():
+    def get_categories():
+        categories = []
+        categories.append((0, "Нет родительской категории"))
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute("SELECT id, category_name FROM categories")
+            rows = cur.fetchall()
+            for row in rows:
+                categories.append((row[0], row[1]))
+        except Exception as e:
+            raise ValidationError(str(e))
+        finally:
+            close_db()
+        return categories
+
+    class CategoryCreationForm(FlaskForm):
+        category_name = StringField(
+            "Название",
+            validators=[DataRequired()],
+        )
+        parent_category_id = SelectField(
+            "Родительская категория", coerce=int, choices=get_categories(), default=None
+        )
+
     class IngredientCreationForm(FlaskForm):
         ingredient_name = StringField(
             "Название",
+            validators=[DataRequired()],
+        )
+
+    class UnitCreationForm(FlaskForm):
+        short_name = StringField(
+            "Короткое название",
+            validators=[DataRequired()],
+        )
+        full_name = StringField(
+            "Полное название",
             validators=[DataRequired()],
         )
 
@@ -65,4 +100,6 @@ def admin_view():
         dashboard_data=dashboard_data,
         content_data=content_data,
         ingredient_creation_form=IngredientCreationForm(),
+        unit_creation_form=UnitCreationForm(),
+        category_creation_form=CategoryCreationForm(),
     )

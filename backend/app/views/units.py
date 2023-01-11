@@ -1,6 +1,4 @@
-import psycopg2.extras
 from flask import (
-    render_template,
     jsonify,
     make_response,
     abort,
@@ -9,54 +7,49 @@ from flask import (
     Blueprint,
 )
 from flask_login import login_required, current_user
-from flask_wtf import FlaskForm
-from wtforms import (
-    StringField,
-    SelectField,
-    TextAreaField,
-    IntegerField,
-    FieldList,
-    FormField,
-    ValidationError,
-)
-from wtforms.validators import DataRequired
 from ..db import get_db, close_db
 from .general import API_PREFIX
 
-ingredients_blueprint = Blueprint("ingredients", __name__)
+units_blueprint = Blueprint("units", __name__)
 
 # CREATE API
-@ingredients_blueprint.post(f"{API_PREFIX}/ingredients")
+@units_blueprint.post(f"{API_PREFIX}/units")
 @login_required
-def add_ingredient():
+def add_unit():
     conn = get_db()
     cur = conn.cursor()
-    ingredient_name = request.form.get("ingredient_name", "")
+    short_name = request.form.get("short_name", "")
+    full_name = request.form.get("full_name", "")
     cur.execute(
-        "INSERT INTO ingredients (ingredient_name) VALUES (%s) RETURNING id",
-        (ingredient_name,),
+        "INSERT INTO units (short_name, full_name) VALUES (%s, %s) RETURNING id",
+        (
+            short_name,
+            full_name,
+        ),
     )
     rows_affected = cur.rowcount
     conn.commit()
     close_db()
     if rows_affected > 0:
-        return redirect("/admin?tab=ingredients")
+        return redirect("/admin?tab=units")
     else:
         abort(500)
 
 
 # UPDATE API
-@ingredients_blueprint.put(f"{API_PREFIX}/ingredients/<int:id>")
+@units_blueprint.put(f"{API_PREFIX}/units/<int:id>")
 @login_required
-def update_ingredient(id):
+def update_unit(id):
     conn = get_db()
     cur = conn.cursor()
-    req = "UPDATE ingredients SET ingredient_name = %s WHERE id = (%s)"
-    ingredient_name = request.form.get("ingredient_name", "")
+    req = "UPDATE units SET short_name = %s, full_name = %s WHERE id = (%s)"
+    short_name = request.form.get("short_name", "")
+    full_name = request.form.get("full_name", "")
     cur.execute(
         req,
         (
-            ingredient_name,
+            short_name,
+            full_name,
             id,
         ),
     )
@@ -74,12 +67,12 @@ def update_ingredient(id):
 
 
 # DELETE API
-@ingredients_blueprint.delete(f"{API_PREFIX}/ingredients/<int:id>")
+@units_blueprint.delete(f"{API_PREFIX}/units/<int:id>")
 @login_required
-def delete_ingredient(id):
+def delete_unit(id):
     conn = get_db()
     cur = conn.cursor()
-    req = "DELETE FROM ingredients WHERE id = (%s)"
+    req = "DELETE FROM units WHERE id = (%s)"
     cur.execute(req, (id,))
     rows_deleted = cur.rowcount
     conn.commit()

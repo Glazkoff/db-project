@@ -5,6 +5,8 @@ from .views.service import service_blueprint
 from .views.general import general_blueprint
 from .views.ingredients import ingredients_blueprint
 from .views.receipts import receipts_blueprint
+from .views.units import units_blueprint
+from .views.categories import categories_blueprint
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -14,6 +16,8 @@ app.register_blueprint(service_blueprint)
 app.register_blueprint(general_blueprint)
 app.register_blueprint(ingredients_blueprint)
 app.register_blueprint(receipts_blueprint)
+app.register_blueprint(units_blueprint)
+app.register_blueprint(categories_blueprint)
 from app import auth
 
 
