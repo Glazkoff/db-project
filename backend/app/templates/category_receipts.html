@@ -1,5 +1,11 @@
-{% extends "base.html" %} {% block title %} {% endblock %} Категория {% block
-content %}
+{% extends "base.html" %} {% block title %} {{category['category_name']}} {%
+endblock %} {% block content %}
 <h1>{{category['category_name']}}</h1>
-{% for receipt in receipts %} {{macros.receipt_block(receipt)}} {% endfor %} {%
-endblock %}
+{% if receipts|length == 0 %}
+<p>
+  Нет рецептов в категории<br />
+  <a href="/categories">Перейти к списку категорий</a>
+</p>
+
+{% endif %} {% for receipt in receipts %} {{macros.receipt_block(receipt)}} {%
+endfor %} {% endblock %}

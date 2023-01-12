@@ -53,16 +53,24 @@ def build_category_tree(parent_id=None):
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     if parent_id:
         cur.execute(
-            "SELECT * FROM categories WHERE parent_category_id = %s", (parent_id,)
+            "SELECT c.*, (SELECT COUNT(r.id) FROM receipts as r WHERE r.category_id = c.id) as count_receipts FROM categories as c WHERE c.parent_category_id = %s",
+            (parent_id,),
         )
     else:
-        cur.execute("SELECT * FROM categories WHERE parent_category_id is null")
+        cur.execute(
+            "SELECT c.*, (SELECT COUNT(r.id) FROM receipts as r WHERE r.category_id = c.id) as count_receipts FROM categories as c WHERE c.parent_category_id is null"
+        )
     rows = cur.fetchall()
     categories = {}
     for row in rows:
         id = row["id"]
         name = row["category_name"]
-        categories[id] = {"name": name, "children": build_category_tree(id)}
+        count_receipts = row["count_receipts"]
+        categories[id] = {
+            "name": name,
+            "count_receipts": count_receipts,
+            "children": build_category_tree(id),
+        }
     return categories
 
 
@@ -88,7 +96,7 @@ def receipts_by_category(id):
         INNER JOIN users as u ON r.author_id = u.id;
     """
     cur.execute(receipts_req, (id,))
-    receipts = cur.fetchall()  
+    receipts = cur.fetchall()
     close_db()
     return render_template(
         "category_receipts.html", category=category, receipts=receipts

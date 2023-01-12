@@ -7,6 +7,7 @@ from .views.ingredients import ingredients_blueprint
 from .views.receipts import receipts_blueprint
 from .views.units import units_blueprint
 from .views.categories import categories_blueprint
+from .views.admin import admin_blueprint
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -18,6 +19,7 @@ app.register_blueprint(ingredients_blueprint)
 app.register_blueprint(receipts_blueprint)
 app.register_blueprint(units_blueprint)
 app.register_blueprint(categories_blueprint)
+app.register_blueprint(admin_blueprint)
 from app import auth
 
 

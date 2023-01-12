@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block title %}Главная{% endblock %} {% block
 content %}
 <h1>Главная</h1>
-<p>Всего на сайте рецептов: <b>{{aggregation[0]}}</b></p>
+<p>Всего на сайте рецептов: <b>{{aggregation['count']}}</b></p>
 <h2>Последние 10 рецептов</h2>
 <ul>
   {% for receipt in receipts %}

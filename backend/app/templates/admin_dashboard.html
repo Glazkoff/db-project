@@ -1,0 +1,105 @@
+{% extends "base.html" %} {% block title %} Дашборд {% endblock %} {% block
+content %}
+<h1>Дашборд</h1>
+<div>
+  <hr />
+  <a href="/admin">Перейти к редактированию контента</a>
+  <hr />
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-4">
+      <div class="card mb-2">
+        <div class="card-body">
+          <h5 class="card-title">Общее количество пользователей:</h5>
+          <p class="card-text"><i>{{ dashboard_data['users_count'] }}</i></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card mb-2">
+        <div class="card-body">
+          <h5 class="card-title">Среднее количество ингредиентов:</h5>
+          <p class="card-text">
+            <i>{{ dashboard_data['ingredients_avg_count']['avg']|round(1) }}</i>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card mb-2">
+        <div class="card-body">
+          <h5 class="card-title">Самые активные пользователи:</h5>
+          {% for user in dashboard_data['most_active_users'] %}
+          <p class="card-text">
+            {{ user['name'] }} - <i>{{ user['count'] }}</i> рецептов
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-4">
+      <div class="card mb-2">
+        <div class="card-body">
+          <h5 class="card-title">
+            Самый популярный ингредиент и сколько упоминаний:
+          </h5>
+          {% for ingredient in dashboard_data['most_poular_ingredient'] %}
+          <p class="card-text">
+            {{ ingredient['ingredient_name'] }} -
+            <i>{{ ingredient['count'] }}</i> раз
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card mb-2">
+        <div class="card-body">
+          <h5 class="card-title">
+            Количество различных ингредиентов в рецептах:
+          </h5>
+          {% for ingredient in dashboard_data['distinct_ingredients_count'] %}
+          <p class="card-text"><i>{{ ingredient['count'] }}</i></p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card mb-2">
+        <div class="card-body">
+          <h5 class="card-title">
+            Количество созданных рецептов в месяц за последний год:
+          </h5>
+          {% for receipt in dashboard_data['receipts_count_per_month_last_year']
+          %}
+          <p class="card-text">
+            {{ receipt['month'].strftime("%m.%Y") }} -
+            <i>{{ receipt['count'] }}</i>
+            рецептов
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-4">
+      <div class="card mb-2">
+        <div class="card-body">
+          <h5 class="card-title">Средняя длина текста рецепта:</h5>
+          {% for receipt in dashboard_data['receipt_text_avg_length'] %}
+          <p class="card-text">
+            {{ receipt['category_name'] }} -
+            <i>{{ receipt['avg']|round(1) }}</i> символов
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

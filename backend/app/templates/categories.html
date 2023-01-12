@@ -1,9 +1,16 @@
 {% extends "base.html" %}{% macro display_children(category_tree) %}
 <ul class="list-group">
   {% for id, category in category_tree.items() %}
-  <li class="list-group-item">
-    <a href="/categories/{{id}}">{{ category.name }}</a> {% if category.children
-    %} {{ display_children(category.children) }} {% endif %}
+  <li class="list-group-item pb-2">
+    <div class="d-flex">
+      <a href="/categories/{{id}}" class="d-block mb-1">{{ category.name }}</a>
+      <small class="d-block ms-1"
+        >[рецептов в узкой категории:
+        <b>{{ category.count_receipts }}</b>]</small
+      >
+    </div>
+    {% if category.children %} {{ display_children(category.children) }} {%
+    endif %}
   </li>
   {% endfor %}
 </ul>
