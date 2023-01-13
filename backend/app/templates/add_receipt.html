@@ -1,5 +1,48 @@
 {% extends "base.html" %} {% block title %}Добавить рецепт{% endblock %} {%
 block content %}
+<script>
+  function addIngredientRow() {
+    var table = document.getElementsByTagName("table")[0];
+    var newRow = table.insertRow(table.rows.length);
+    var ingredientCell = newRow.insertCell(0);
+    var unitCell = newRow.insertCell(1);
+    var amountCell = newRow.insertCell(2);
+    var commentCell = newRow.insertCell(3);
+
+    ingredientCell.innerHTML =
+      '<select name="ingredient" class="form-control" required><option value="" disabled selected>Выберите ингредиент</option>' +
+      '{% for ingredient in ingredients %}<option value="{{ ingredient[0] }}">{{ ingredient[1] }}</option>{% endfor %}' +
+      "</select>";
+    unitCell.innerHTML =
+      '<select name="unit" class="form-control" required><option value="" disabled selected>Выберите ед.измерения</option>' +
+      '{% for unit in units %}<option value="{{ unit[0] }}">{{ unit[1] }}</option>{% endfor %}' +
+      "</select>";
+    amountCell.innerHTML =
+      '<input type="number" class="form-control" name="amount" min="1" required>';
+    commentCell.innerHTML =
+      '<input type="text" class="form-control" name="comment">';
+  }
+
+  function addNewIngredientRow() {
+    var table = document.getElementById("new-ingredients-table");
+    var newRow = table.insertRow(table.rows.length);
+    var ingredientCell = newRow.insertCell(0);
+    var unitCell = newRow.insertCell(1);
+    var amountCell = newRow.insertCell(2);
+    var commentCell = newRow.insertCell(3);
+
+    ingredientCell.innerHTML =
+      '<input type="text" name="new_ingredient_name" class="form-control" required>';
+    unitCell.innerHTML =
+      '<select name="new_ingredient_unit" class="form-control" required><option value="" disabled selected>Выберите ед.измерения</option>' +
+      '{% for unit in units %}<option value="{{ unit[0] }}">{{ unit[1] }}</option>{% endfor %}' +
+      "</select>";
+    amountCell.innerHTML =
+      '<input type="number" name="new_ingredient_amount" min="1" class="form-control" required>';
+    commentCell.innerHTML =
+      '<input type="text" class="form-control" name="new_ingredient_comment">';
+  }
+</script>
 <h1>Добавление рецепта</h1>
 <form method="POST" action="/api/add_receipt" class="form-horizontal">
   {{ form.csrf_token }}
@@ -15,37 +58,104 @@ block content %}
     {{ form.category.label(class="col-sm-2 control-label") }}
     <div class="col-sm-10">{{ form.category(class="form-control") }}</div>
   </div>
+  <div class="container-fluid">
+    <h3>Ингредиенты:</h3>
+    <table>
+      <tr>
+        <th>Ингредиенты</th>
+        <th>Ед.измерения</th>
+        <th>Количество</th>
+        <th>Комментарий</th>
+      </tr>
+      {% for ingredient in form.ingredients %}
+      <tr>
+        <td>
+          <div class="form-group">
+            <div class="col-sm-10">
+              {{ ingredient.ingredient(class="form-control") }}
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="form-group">
+            <div class="col-sm-10">
+              {{ ingredient.unit(class="form-control") }}
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="form-group">
+            <div class="col-sm-10">
+              {{ ingredient.amount(class="form-control") }}
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="form-group">
+            <div class="col-sm-10">
+              {{ ingredient.comment(class="form-control") }}
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    <button
+      type="button"
+      onclick="addIngredientRow()"
+      class="btn btn-success mt-2"
+    >
+      Добавить ингредиент
+    </button>
+    <br />
+    <small>Не нашли нужный ингредиент?</small>
+    <button
+      class="btn btn-primary"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#ingredients_list"
+      aria-expanded="false"
+      aria-controls="ingredients_list"
+    >
+      Добавьте в систему свой
+    </button>
+    <div class="collapse" id="ingredients_list">
+      <h3>Новые ингредиенты:</h3>
+      <table id="new-ingredients-table">
+        <tr>
+          <th>Ингредиенты</th>
+          <th>Ед.измерения</th>
+          <th>Количество</th>
+          <th>Комментарий</th>
+        </tr>
+        {% for ingredient in form.new_ingredients %}
+        <tr>
+          <td>{{ ingredient.ingredient_name }}</td>
+          <td>{{ ingredient.unit }}</td>
+          <td>{{ ingredient.amount }}</td>
+          <td>{{ ingredient.comment }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <button
+        type="button"
+        onclick="addNewIngredientRow()"
+        class="btn btn-success mt-2"
+      >
+        Добавить новый ингредиент
+      </button>
+    </div>
+  </div>
   <div class="form-group">
     <label class="col-sm-2 control-label" for="author">Автор</label>
     <div class="col-sm-10">
       <b>{{current_user.name}} [{{current_user.email}}]</b>
     </div>
   </div>
-  {% for ingredient_form in form.ingredients %}
-  <div class="form-group">
-    {{ ingredient_form.name.label(class="col-sm-2 control-label") }}
-    <div class="col-sm-10">
-      {{ ingredient_form.name(class="form-control") }}
-    </div>
-  </div>
-  <div class="form-group">
-    {{ ingredient_form.unit.label(class="col-sm-2 control-label") }}
-    <div class="col-sm-10">
-      {{ ingredient_form.unit(class="form-control") }}
-    </div>
-  </div>
-  <div class="form-group">
-    {{ ingredient_form.amount.label(class="col-sm-2 control-label") }}
-    <div class="col-sm-10">
-      {{ ingredient_form.amount(class="form-control") }}
-    </div>
-  </div>
-  {% endfor %}
   <div class="form-group mt-2">
     <div class="col-sm-offset-2 col-sm-10">
       <button type="submit" class="btn btn-primary">Создать рецепт</button>
     </div>
   </div>
 </form>
-
 {% endblock %}

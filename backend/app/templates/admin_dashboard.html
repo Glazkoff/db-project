@@ -19,7 +19,9 @@ content %}
     <div class="col-sm-4">
       <div class="card mb-2">
         <div class="card-body">
-          <h5 class="card-title">Среднее количество ингредиентов:</h5>
+          <h5 class="card-title">
+            Среднее количество ингредиентов в рецептах:
+          </h5>
           <p class="card-text">
             <i>{{ dashboard_data['ingredients_avg_count']['avg']|round(1) }}</i>
           </p>
@@ -93,7 +95,7 @@ content %}
           {% for receipt in dashboard_data['receipt_text_avg_length'] %}
           <p class="card-text">
             {{ receipt['category_name'] }} -
-            <i>{{ receipt['avg']|round(1) }}</i> символов
+            <i>{{ receipt['avg']|round(1) }}</i> символ(ов)
           </p>
           {% endfor %}
         </div>

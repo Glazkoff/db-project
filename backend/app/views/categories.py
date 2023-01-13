@@ -93,7 +93,7 @@ def receipts_by_category(id):
         )
         SELECT r.id, r.title, r.created_at, r.updated_at, u.name as author_name, c.category_name, c.id as category_id FROM receipts as r 
         INNER JOIN sub_categories as c ON r.category_id = c.id
-        INNER JOIN users as u ON r.author_id = u.id;
+        INNER JOIN users as u ON r.author_id = u.id ORDER BY r.created_at DESC;
     """
     cur.execute(receipts_req, (id,))
     receipts = cur.fetchall()

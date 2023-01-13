@@ -1,31 +1,89 @@
 {% extends "base.html" %} {% block title %} {% if receipt and receipt is not
 none %} {{receipt.title}} {% else %} Рецепт не найден {% endif %} {% endblock %}
 {% block content %} {% if receipt and receipt is not none %}
-<h1>{{receipt.title}}</h1>
-<div>
-  <ol class="breadcrumb">
-    {% for category in categories %}
-    <li class="breadcrumb-item">
-      <a href="/categories/{{category.id}}">{{category.category_name}}</a>
-    </li>
-    {% endfor %}
-    <li class="breadcrumb-item active">{{receipt.title}}</li>
-  </ol>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>{{ receipt.title }}</h1>
+    </div>
+  </div>
+  <div>
+    <ol class="breadcrumb">
+      {% if categories|length == 0 %}
+      <li class="breadcrumb-item active">Без категории</li>
+      {% endif %} {% for category in categories %}
+      <li class="breadcrumb-item">
+        <a href="/categories/{{category.id}}">{{category.category_name}}</a>
+      </li>
+      {% endfor %}
+      <li class="breadcrumb-item active">{{receipt.title}}</li>
+    </ol>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <p>
+        Рецепт создан:
+        <b>{{receipt.created_at.strftime('%d.%m.%Y в %H:%M')}}</b><br />
+        Последнее обновление:
+        <b>{{receipt.updated_at.strftime('%d.%m.%Y в %H:%M')}}</b>
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <h3>Ингредиенты</h3>
+      {% if ingredients|length == 0 %}
+      <tr>
+        <p>Нет ингредиентов</p>
+      </tr>
+      {% else %}
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Ингредиент</th>
+            <th>Количество</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ingredient in ingredients %}
+          <tr>
+            <td>
+              {{ ingredient.ingredient_name }} {% if ingredient.comment != '' %}
+              ({{ ingredient.comment }}) {% endif %}
+            </td>
+            <td>{{ ingredient.amount }} {{ ingredient.short_name}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+    <div class="col-md-4">
+      <h3>Автор</h3>
+      <p>{{ author.name }} [{{ author.email }}]</p>
+      {% if current_user.is_authenticated %}
+      <p>
+        <i>Редактирование:</i>
+        <a href="/receipts/update/{{receipt.id}}">Обновить</a>
+        <a href="/api/receipts/{{receipt.id}}" data-method="delete">Удалить</a>
+      </p>
+      {% endif %}
+    </div>
+    <div class="col-md-4">
+      <h3>Рецепт</h3>
+      <p>{{ receipt.body }}</p>
+    </div>
+  </div>
 </div>
-<p>Создано: {{receipt.created_at.strftime('%d.%m.%Y в %H:%M')}}</p>
-<p>Обновлено: {{receipt.updated_at.strftime('%d.%m.%Y в %H:%M')}}</p>
-<p>{{receipt.body}}</p>
-{% if current_user.is_authenticated %}
-<a href="/receipts/update/{{receipt.id}}">Обновить</a>
-<a href="/api/receipts/{{receipt.id}}" data-method="delete">Удалить</a>
-{% endif %}
+
 <script>
   document
     .querySelector('a[data-method="delete"]')
     .addEventListener("click", function (event) {
       event.preventDefault();
       var xhr = new XMLHttpRequest();
-      xhr.open("DELETE", this.href);
+      xhr.open("DELETE", "/api/receipts/{{receipt.id}}");
       xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
           if (xhr.status === 200) {
