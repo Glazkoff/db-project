@@ -78,19 +78,6 @@ def get_units():
 @receipts_blueprint.route("/add_receipt")
 @login_required
 def add_receipt_view():
-    # def validate_ingredient_name(form, field):
-    #     conn = None
-    #     try:
-    #         conn = get_db()
-    #         cur = conn.cursor()
-    #         cur.execute("SELECT COUNT(*) FROM ingredients WHERE name=%s", (field.data,))
-    #         count = cur.fetchone()[0]
-    #         if count > 0:
-    #             raise ValidationError("Ингредиент уже существует")
-    #     except Exception as e:
-    #         raise ValidationError(str(e))
-    #     finally:
-    #         close_db()
 
     units = get_units()
     ingredients = get_ingredients()
@@ -230,11 +217,12 @@ def receipt_detalization_view(id):
 
     cur.execute(
         """
-            SELECT iir.*, i.ingredient_name, u.short_name FROM ingredients_in_receipts iir
-            JOIN ingredients i ON iir.ingredient_id = i.id
-            JOIN units u ON iir.unit_id = u.id
-            WHERE iir.receipt_id = %s;
-            """,
+            SELECT iir.*, i.ingredient_name, u.short_name
+            FROM ingredients_in_receipts iir, ingredients i, units u
+            WHERE iir.ingredient_id = i.id
+            AND iir.unit_id = u.id
+            AND iir.receipt_id = %s;
+        """,
         (id,),
     )
     ingredients = cur.fetchall()

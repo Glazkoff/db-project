@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS receipts (
     author_id INTEGER REFERENCES users(id) ON DELETE
   SET NULL ON UPDATE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT NOW()
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 --
 -- Таблица ингредиентов

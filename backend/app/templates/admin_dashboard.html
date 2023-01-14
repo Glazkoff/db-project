@@ -61,7 +61,7 @@ content %}
       <div class="card mb-2">
         <div class="card-body">
           <h5 class="card-title">
-            Количество различных ингредиентов в рецептах:
+            Количество используемых ингредиентов в рецептах:
           </h5>
           {% for ingredient in dashboard_data['distinct_ingredients_count'] %}
           <p class="card-text"><i>{{ ingredient['count'] }}</i></p>
@@ -91,7 +91,7 @@ content %}
     <div class="col-sm-4">
       <div class="card mb-2">
         <div class="card-body">
-          <h5 class="card-title">Средняя длина текста рецепта:</h5>
+          <h5 class="card-title">Средняя длина текста рецепта в категориях:</h5>
           {% for receipt in dashboard_data['receipt_text_avg_length'] %}
           <p class="card-text">
             {{ receipt['category_name'] }} -
