@@ -34,7 +34,7 @@ content %}
           <h5 class="card-title">Самые активные пользователи:</h5>
           {% for user in dashboard_data['most_active_users'] %}
           <p class="card-text">
-            {{ user['name'] }} - <i>{{ user['count'] }}</i> рецептов
+            {{ user['name'] }} - <i>{{ user['count'] }}</i> рецепт(ов)
           </p>
           {% endfor %}
         </div>
@@ -80,7 +80,7 @@ content %}
           <p class="card-text">
             {{ receipt['month'].strftime("%m.%Y") }} -
             <i>{{ receipt['count'] }}</i>
-            рецептов
+            рецепт(ов)
           </p>
           {% endfor %}
         </div>
@@ -95,7 +95,7 @@ content %}
           {% for receipt in dashboard_data['receipt_text_avg_length'] %}
           <p class="card-text">
             {{ receipt['category_name'] }} -
-            <i>{{ receipt['avg']|round(1) }}</i> символ(ов)
+            <i>{{ receipt['avg']|round(1) }}</i> символ(а/ов)
           </p>
           {% endfor %}
         </div>

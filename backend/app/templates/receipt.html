@@ -50,7 +50,7 @@ none %} {{receipt.title}} {% else %} Рецепт не найден {% endif %} 
           <tr>
             <td>
               {{ ingredient.ingredient_name }} {% if ingredient.comment != '' %}
-              ({{ ingredient.comment }}) {% endif %}
+              <i>({{ ingredient.comment }})</i> {% endif %}
             </td>
             <td>{{ ingredient.amount }} {{ ingredient.short_name}}</td>
           </tr>
@@ -70,7 +70,7 @@ none %} {{receipt.title}} {% else %} Рецепт не найден {% endif %} 
       </p>
       {% endif %}
     </div>
-    <div class="col-md-4">
+    <div class="col-md-8">
       <h3>Рецепт</h3>
       <p>{{ receipt.body }}</p>
     </div>

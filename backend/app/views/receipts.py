@@ -85,7 +85,7 @@ def add_receipt_view():
     class IngredientForm(FlaskForm):
         ingredient = SelectField("Название", coerce=int, choices=ingredients)
         unit = SelectField("Ед.измерения", coerce=int, choices=units)
-        amount = IntegerField("Количество", validators=[NumberRange(min=1)])
+        amount = IntegerField("Количество", validators=[NumberRange(min=0.01)])
         comment = StringField("Комментарий")
 
     class NewIngredientForm(FlaskForm):

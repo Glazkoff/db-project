@@ -79,42 +79,43 @@ UPDATE ON receipts FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
 -- 
 -- Создание моковых объектов
 -- 
-IF (
+DO $$ BEGIN IF (
   SELECT COUNT(*)
   FROM units
 ) = 0 --
-BEGIN
+THEN
 INSERT INTO units(short_name, full_name)
-VALUES ("шт", "штук");
+VALUES ('шт', 'штук');
 INSERT INTO units(short_name, full_name)
-VALUES ("кг", "килограмм");
+VALUES ('кг', 'килограмм');
 INSERT INTO units(short_name, full_name)
-VALUES ("г", "грамм");
+VALUES ('г', 'грамм');
 INSERT INTO units(short_name, full_name)
-VALUES ("л", "литров");
-END --
+VALUES ('л', 'литров');
+END IF;
+END $$;
 --  
-IF (
+DO $$ BEGIN IF (
   SELECT COUNT(*)
   FROM ingredients
 ) = 0 --
-BEGIN
+THEN
 INSERT INTO ingredients(ingredient_name)
-VALUES ("Картофель");
+VALUES ('Картофель');
 INSERT INTO ingredients(ingredient_name)
-VALUES ("Морковь");
+VALUES ('Морковь');
 INSERT INTO ingredients(ingredient_name)
-VALUES ("Вода");
+VALUES ('Вода');
 INSERT INTO ingredients(ingredient_name)
-VALUES ("Соль");
-END --
---
+VALUES ('Соль');
+END IF;
+END $$;
 -- 
-IF (
+DO $$ BEGIN IF (
   SELECT COUNT(*)
   FROM categories
 ) = 0 --
-BEGIN
+THEN
 INSERT INTO categories(category_name, parent_category_id)
 VALUES ('Основные блюда', null);
 INSERT INTO categories(category_name, parent_category_id)
@@ -125,27 +126,70 @@ INSERT INTO categories(category_name, parent_category_id)
 VALUES ('Салаты', 3);
 INSERT INTO categories(category_name, parent_category_id)
 VALUES ('Лёгкие салаты', 4);
-END --
+END IF;
+END $$;
 --
-IF (
+DO $$ BEGIN IF (
   SELECT COUNT(*)
   FROM users
 ) = 0 --
-BEGIN
-INSERT INTO receipts (name, email, password)
+THEN
+INSERT INTO users (name, email, password)
 VALUES ('admin', 'admin@root.ru', 'admin');
-END --
+END IF;
+END $$;
 --
-IF (
+DO $$ BEGIN IF (
   SELECT COUNT(*)
   FROM receipts
 ) = 0 --
-BEGIN
-INSERT INTO receipts(
+THEN
+INSERT INTO receipts (
     title,
     body,
     category_id,
-    author_id,
+    author_id
   )
-VALUES ('test', 'test', 4, 1);
-END
+VALUES ('Салат морковный', 'test', 4, 1);
+END IF;
+END $$;
+--
+DO $$ BEGIN IF (
+  SELECT COUNT(*)
+  FROM ingredients_in_receipts
+) = 0 --
+THEN
+INSERT INTO ingredients_in_receipts (
+    ingredient_id,
+    receipt_id,
+    unit_id,
+    amount,
+    comment
+  )
+VALUES (1, 1, 2, 1, '');
+INSERT INTO ingredients_in_receipts(
+    ingredient_id,
+    receipt_id,
+    unit_id,
+    amount,
+    comment
+  )
+VALUES (2, 1, 1, 2, '');
+INSERT INTO ingredients_in_receipts(
+    ingredient_id,
+    receipt_id,
+    unit_id,
+    amount,
+    comment
+  )
+VALUES (3, 1, 4, 0.5, 'кипячёная');
+INSERT INTO ingredients_in_receipts(
+    ingredient_id,
+    receipt_id,
+    unit_id,
+    amount,
+    comment
+  )
+VALUES (4, 1, 3, 10, '');
+END IF;
+END $$;
