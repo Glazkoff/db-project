@@ -43,5 +43,5 @@
 
 ### Необходимые команды
 
-`docker compose up --build` - запуск проекта в режиме **разработки**
-`docker compose -f docker-compose-prod.yml up --build -d` - запуск проекта в режиме **продакшена**
+- `docker compose up --build` - запуск проекта в режиме **разработки**
+- `docker compose -f docker-compose-prod.yml up --build -d` - запуск проекта в режиме **продакшена**
