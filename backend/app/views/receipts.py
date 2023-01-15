@@ -200,12 +200,13 @@ def receipt_detalization_view(id):
     cur.execute(
         """
             SELECT r.*, u.name, u.email FROM receipts r
-            JOIN users u ON r.author_id = u.id
+            RIGHT JOIN users u ON r.author_id = u.id
             WHERE r.id = %s;
             """,
         (id,),
     )
     result = cur.fetchone()
+    print("result", result)
     receipt = {
         "id": result["id"],
         "title": result["title"],

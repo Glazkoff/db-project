@@ -43,6 +43,9 @@
             </ul>
             <form class="d-flex" role="search">
               {% if not current_user.is_authenticated %}
+              <a class="btn btn-outline-secondary me-2" href="/register"
+                >Зарегистрироваться</a
+              >
               <a class="btn btn-outline-success" href="/login">Войти</a>
               {% else %}
               <span class="text-light small pe-2 text-end">

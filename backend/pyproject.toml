@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "backend"
 version = "0.1.0"
-description = ""
+description = "Поваренная книга - это веб-приложение с использованием фреймворка Flask, которое использует базу данных PostgreSQL для хранения и извлечения информации."
 authors = ["Nikita Glazkov <zitrnik@gmail.com>"]
 
 [tool.poetry.dependencies]

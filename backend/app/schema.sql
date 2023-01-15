@@ -27,8 +27,7 @@ CREATE TABLE IF NOT EXISTS receipts (
   body TEXT NOT NULL,
   category_id INTEGER REFERENCES categories(id) ON DELETE
   SET NULL ON UPDATE CASCADE,
-    author_id INTEGER REFERENCES users(id) ON DELETE
-  SET NULL ON UPDATE CASCADE,
+    author_id INTEGER REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -77,3 +76,76 @@ END;
 $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER set_receipts_updated_at BEFORE
 UPDATE ON receipts FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
+-- 
+-- Создание моковых объектов
+-- 
+IF (
+  SELECT COUNT(*)
+  FROM units
+) = 0 --
+BEGIN
+INSERT INTO units(short_name, full_name)
+VALUES ("шт", "штук");
+INSERT INTO units(short_name, full_name)
+VALUES ("кг", "килограмм");
+INSERT INTO units(short_name, full_name)
+VALUES ("г", "грамм");
+INSERT INTO units(short_name, full_name)
+VALUES ("л", "литров");
+END --
+--  
+IF (
+  SELECT COUNT(*)
+  FROM ingredients
+) = 0 --
+BEGIN
+INSERT INTO ingredients(ingredient_name)
+VALUES ("Картофель");
+INSERT INTO ingredients(ingredient_name)
+VALUES ("Морковь");
+INSERT INTO ingredients(ingredient_name)
+VALUES ("Вода");
+INSERT INTO ingredients(ingredient_name)
+VALUES ("Соль");
+END --
+--
+-- 
+IF (
+  SELECT COUNT(*)
+  FROM categories
+) = 0 --
+BEGIN
+INSERT INTO categories(category_name, parent_category_id)
+VALUES ('Основные блюда', null);
+INSERT INTO categories(category_name, parent_category_id)
+VALUES ('Каши', 1);
+INSERT INTO categories(category_name, parent_category_id)
+VALUES ('Закуски', null);
+INSERT INTO categories(category_name, parent_category_id)
+VALUES ('Салаты', 3);
+INSERT INTO categories(category_name, parent_category_id)
+VALUES ('Лёгкие салаты', 4);
+END --
+--
+IF (
+  SELECT COUNT(*)
+  FROM users
+) = 0 --
+BEGIN
+INSERT INTO receipts (name, email, password)
+VALUES ('admin', 'admin@root.ru', 'admin');
+END --
+--
+IF (
+  SELECT COUNT(*)
+  FROM receipts
+) = 0 --
+BEGIN
+INSERT INTO receipts(
+    title,
+    body,
+    category_id,
+    author_id,
+  )
+VALUES ('test', 'test', 4, 1);
+END
